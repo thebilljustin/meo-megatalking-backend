@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\CMS\VideoMaterial;
 
-use App\Curric;
 use App\Http\Controllers\Controller;
+use App\VideoMaterial\Video;
+use App\VideoMaterial\VideomaterialUnit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator as FacadesValidator;
 
-class CurriculumsController extends Controller
+class UnitsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,18 +17,7 @@ class CurriculumsController extends Controller
      */
     public function index()
     {
-        $category = $_GET['category'];
-
-        if ($category == 'textbooks')
-        {
-            $currics = Curric::where('category', $category)->get();
-        }
-        if ($category == 'videomaterial')
-        {
-            $currics = Curric::where('category', $category)->with('videomaterial_units')->get();
-        }
-        
-        return response()->json($currics);
+        //
     }
 
     /**
@@ -47,15 +38,18 @@ class CurriculumsController extends Controller
      */
     public function store(Request $request)
     {
-        $store = Curric::create(request()->validate([
-            'title' => 'required',
-            'category' => 'required'
-        ]));
+        $unit = new VideomaterialUnit();
+        $validator = FacadesValidator::make($request->all(), $unit->rules);
+        if ($validator->fails())
+        {
+            return $this->message('error', 'Please fill all required fields.');
+        }
 
-        if ($store) { return response()->json(['message' => 'Added new curriculum.']); }
-        else if (!$store) { return response()->json(['message' => 'Failed to add curriculum.']); }
-        
+        VideomaterialUnit::create($request->all());
+
+        return $this->message('success', 'Added new unit.');
     }
+
     /**
      * Display the specified resource.
      *
@@ -86,8 +80,19 @@ class CurriculumsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        //
+    { 
+        $unit = VideomaterialUnit::find($id);
+        $validator = FacadesValidator::make($request->all(), $unit->title_rule);
+        if ($validator->fails())
+        {
+            return $this->message('error', 'Please fill all required fields.');
+        }
+
+        $unit->title = $request->title;
+        $unit->save();
+
+        return $this->message('success', 'Unit has been updated.');;
+        
     }
 
     /**
@@ -98,7 +103,13 @@ class CurriculumsController extends Controller
      */
     public function destroy($id)
     {
-        Curric::destroy($id);
-        return response()->json(['message' => 'Curriculum has been deleted.']);
+        VideomaterialUnit::destroy($id);
+
+        return $this->message('success', 'Unit has been deleted.');
+    }
+
+    private function message($type, $data)
+    {
+        return response()->json([$type => $data]);
     }
 }

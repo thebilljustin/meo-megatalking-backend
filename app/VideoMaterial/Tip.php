@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\VideoMaterial;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,6 +16,6 @@ class Tip extends Model
 
     public function content() 
     {
-        return $this->belongsTo('App\Content');
+        return $this->belongsTo('App\VideoMaterial\Content');
     }
 }

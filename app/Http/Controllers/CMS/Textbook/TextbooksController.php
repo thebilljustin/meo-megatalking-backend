@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\CMS\Textbook;
 
 use App\Http\Controllers\Controller;
-use App\Tip;
+use App\Textbook\Textbook;
+use App\Textbook\TextbookUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class TipsController extends Controller
+class TextbooksController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +17,7 @@ class TipsController extends Controller
      */
     public function index()
     {
-        //
+        
     }
 
     /**
@@ -36,18 +37,27 @@ class TipsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $tips = new Tip();
-
-        $validator = Validator::make($request->all(), $tips->rules);
+    {    
+        $book = new Textbook();
+        $validator = Validator::make($request->all(), $book->rules);
         if ($validator->fails())
         {
-            return $this->message('error', 'Please fill all required fields');
+            return $this->message('error', 'Please fill all required fields.');
         }
 
-        Tip::create($request->all());
+        $imagename = time() .'.' . $request->image->extension();
+        $request->image->move(public_path('storage/images/textbooks'), $imagename);
 
-        return $this->message('success', 'Tips has been created.');
+        
+        // $path = $request->image->store('images');
+       
+        // // $pathToFile = $request->file('image')->store('images', 'public');
+
+        $book->series_id = $request->series_id;
+        $book->title = $request->title;
+        $book->image = $imagename;
+        $book->save();
+        return $this->message('success', 'Added new textbook.');
     }
 
     /**
@@ -58,7 +68,7 @@ class TipsController extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
@@ -81,18 +91,7 @@ class TipsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $tips = Tip::find($id);
-        $validator = Validator::make($request->all(), $tips->rules);
-        if ($validator->fails())
-        {
-            return $this->message('error', 'Please fill all required fields');
-        }
-
-        $tips->title = $request->title;
-        $tips->body = $request->body;
-        $tips->save(); 
-
-        return $this->message('success', 'Tips has been updated.');
+        //
     }
 
     /**
@@ -103,9 +102,7 @@ class TipsController extends Controller
      */
     public function destroy($id)
     {
-        Tip::destroy($id);
-
-        return $this->message('success', 'Tips has been removed.');
+        //
     }
 
     private function message($type, $data)

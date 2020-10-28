@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\CMS\VideoMaterial;
+
 
 use App\Http\Controllers\Controller;
-use App\Video;
+use App\VideoMaterial\Content;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use tidy;
 
-class VideosController extends Controller
+class ContentsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,9 +17,7 @@ class VideosController extends Controller
      */
     public function index()
     {
-        $videos = Video::all();
-
-        return response()->json($videos);
+        //
     }
 
     /**
@@ -40,16 +38,16 @@ class VideosController extends Controller
      */
     public function store(Request $request)
     {
-        $video = new Video();
-        $validator = Validator::make($request->all(), $video->rules);
+        $content = new Content();
+        $validator = Validator::make($request->all(), $content->rules);
         if ($validator->fails())
         {
             return $this->message('error', 'Please fill all required fields.');
         }
-        
-        Video::create($request->all());
+        Content::create($request->all());
 
-        return $this->message('success', 'New video has been added.');
+        return $this->message('success', 'Added new content.'); 
+        
     }
 
     /**
@@ -60,8 +58,9 @@ class VideosController extends Controller
      */
     public function show($id)
     {
-        $data = Video::find($id)->with('contents')->get();
-        return response()->json($data);
+        $content = Content::find($id)->with('tips')->get();
+
+        return response()->json($content);
     }
 
     /**
@@ -84,19 +83,21 @@ class VideosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $video = Video::find($id); 
-
-        // $validator = Validator::make($request->all(), $video->rules);
-        // if ($validator->fails())
-        // {
-        //     return $this->message('error', 'Please fill all required fields.');
-        // }
-        $video->unit_id = $request->unit_id;
-        $video->video_title = $request->video_title;
-        $video->save();
-
-        return $this->message('success', 'Video has been updated.');;
+        $content = Content::find($id);
+        $validator = Validator::make($request->all(), $content->rules);
+        if ($validator->fails())
+        {
+            return $this->message('error', 'Please fill all required fields.');
+        }
         
+        $content->start_time = $request->start_time;
+        $content->end_time = $request->end_time;
+        $content->sentence = $request->sentence;
+        $content->translation = $request->translation;
+        $content->save();
+        
+        return $this->message('success', 'Content has been updated.');
+
     }
 
     /**
@@ -107,9 +108,9 @@ class VideosController extends Controller
      */
     public function destroy($id)
     {
-        Video::destroy($id);
+        Content::destroy($id);
 
-        return $this->message('success', 'Video has been deleted.');
+        return $this->message('success', 'Content has been deleted.');
     }
 
     private function message($type, $data)

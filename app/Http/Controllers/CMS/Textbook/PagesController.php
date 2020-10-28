@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\CMS\Textbook;
 
-use App\Curric;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class CurriculumsController extends Controller
+class PagesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,18 +14,7 @@ class CurriculumsController extends Controller
      */
     public function index()
     {
-        $category = $_GET['category'];
-
-        if ($category == 'textbooks')
-        {
-            $currics = Curric::where('category', $category)->get();
-        }
-        if ($category == 'videomaterial')
-        {
-            $currics = Curric::where('category', $category)->with('videomaterial_units')->get();
-        }
-        
-        return response()->json($currics);
+        //
     }
 
     /**
@@ -47,15 +35,9 @@ class CurriculumsController extends Controller
      */
     public function store(Request $request)
     {
-        $store = Curric::create(request()->validate([
-            'title' => 'required',
-            'category' => 'required'
-        ]));
-
-        if ($store) { return response()->json(['message' => 'Added new curriculum.']); }
-        else if (!$store) { return response()->json(['message' => 'Failed to add curriculum.']); }
-        
+        //
     }
+
     /**
      * Display the specified resource.
      *
@@ -98,7 +80,6 @@ class CurriculumsController extends Controller
      */
     public function destroy($id)
     {
-        Curric::destroy($id);
-        return response()->json(['message' => 'Curriculum has been deleted.']);
+        //
     }
 }

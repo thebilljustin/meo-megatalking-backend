@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\VideoMaterial;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,11 +18,11 @@ class Content extends Model
 
     public function video()
     {
-        return $this->belongsTo('App\Video');
+        return $this->belongsTo('App\VideoMaterial\Video');
     }
 
     public function tips()
     {
-        return $this->hasMany('App\Tip', 'content_id');
+        return $this->hasMany('App\VideoMaterial\Tip', 'content_id');
     }
 }

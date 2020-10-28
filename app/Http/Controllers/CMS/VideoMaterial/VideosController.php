@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\CMS\VideoMaterial;
 
-use App\Curric;
 use App\Http\Controllers\Controller;
+use App\VideoMaterial\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use tidy;
 
-class CurriculumsController extends Controller
+class VideosController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,18 +17,9 @@ class CurriculumsController extends Controller
      */
     public function index()
     {
-        $category = $_GET['category'];
+        $videos = Video::all();
 
-        if ($category == 'textbooks')
-        {
-            $currics = Curric::where('category', $category)->get();
-        }
-        if ($category == 'videomaterial')
-        {
-            $currics = Curric::where('category', $category)->with('videomaterial_units')->get();
-        }
-        
-        return response()->json($currics);
+        return response()->json($videos);
     }
 
     /**
@@ -47,15 +40,18 @@ class CurriculumsController extends Controller
      */
     public function store(Request $request)
     {
-        $store = Curric::create(request()->validate([
-            'title' => 'required',
-            'category' => 'required'
-        ]));
-
-        if ($store) { return response()->json(['message' => 'Added new curriculum.']); }
-        else if (!$store) { return response()->json(['message' => 'Failed to add curriculum.']); }
+        $video = new Video();
+        $validator = Validator::make($request->all(), $video->rules);
+        if ($validator->fails())
+        {
+            return $this->message('error', 'Please fill all required fields.');
+        }
         
+        Video::create($request->all());
+
+        return $this->message('success', 'New video has been added.');
     }
+
     /**
      * Display the specified resource.
      *
@@ -64,7 +60,8 @@ class CurriculumsController extends Controller
      */
     public function show($id)
     {
-        //
+        $data = Video::find($id)->with('contents')->get();
+        return response()->json($data);
     }
 
     /**
@@ -87,7 +84,19 @@ class CurriculumsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $video = Video::find($id); 
+
+        // $validator = Validator::make($request->all(), $video->rules);
+        // if ($validator->fails())
+        // {
+        //     return $this->message('error', 'Please fill all required fields.');
+        // }
+        $video->unit_id = $request->unit_id;
+        $video->video_title = $request->video_title;
+        $video->save();
+
+        return $this->message('success', 'Video has been updated.');;
+        
     }
 
     /**
@@ -98,7 +107,13 @@ class CurriculumsController extends Controller
      */
     public function destroy($id)
     {
-        Curric::destroy($id);
-        return response()->json(['message' => 'Curriculum has been deleted.']);
+        Video::destroy($id);
+
+        return $this->message('success', 'Video has been deleted.');
+    }
+
+    private function message($type, $data)
+    {
+        return response()->json([$type => $data]);
     }
 }

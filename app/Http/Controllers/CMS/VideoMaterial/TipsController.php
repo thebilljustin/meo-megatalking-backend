@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\CMS\VideoMaterial;
 
 use App\Http\Controllers\Controller;
-use App\Unit;
+use App\VideoMaterial\Tip;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator as FacadesValidator;
+use Illuminate\Support\Facades\Validator;
 
-class UnitsController extends Controller
+class TipsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -37,16 +37,17 @@ class UnitsController extends Controller
      */
     public function store(Request $request)
     {
-        $unit = new Unit();
-        $validator = FacadesValidator::make($request->all(), $unit->rules);
+        $tips = new Tip();
+
+        $validator = Validator::make($request->all(), $tips->rules);
         if ($validator->fails())
         {
-            return $this->message('error', 'Please fill all required fields.');
+            return $this->message('error', 'Please fill all required fields');
         }
 
-        Unit::create($request->all());
+        Tip::create($request->all());
 
-        return $this->message('success', 'Added new unit.');
+        return $this->message('success', 'Tips has been created.');
     }
 
     /**
@@ -79,19 +80,19 @@ class UnitsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    { 
-        $unit = Unit::find($id);
-        $validator = FacadesValidator::make($request->all(), $unit->title_rule);
+    {
+        $tips = Tip::find($id);
+        $validator = Validator::make($request->all(), $tips->rules);
         if ($validator->fails())
         {
-            return $this->message('error', 'Please fill all required fields.');
+            return $this->message('error', 'Please fill all required fields');
         }
 
-        $unit->title = $request->title;
-        $unit->save();
+        $tips->title = $request->title;
+        $tips->body = $request->body;
+        $tips->save(); 
 
-        return $this->message('success', 'Unit has been updated.');;
-        
+        return $this->message('success', 'Tips has been updated.');
     }
 
     /**
@@ -102,9 +103,9 @@ class UnitsController extends Controller
      */
     public function destroy($id)
     {
-        Unit::destroy($id);
+        Tip::destroy($id);
 
-        return $this->message('success', 'Unit has been deleted.');
+        return $this->message('success', 'Tips has been removed.');
     }
 
     private function message($type, $data)

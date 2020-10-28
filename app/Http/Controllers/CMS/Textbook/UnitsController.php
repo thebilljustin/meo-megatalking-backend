@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\CMS\Textbook;
 
-use App\Content;
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\Validation\Validator as ValidationValidator;
+use App\Textbook\Textbook;
+use App\Textbook\TextbookUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class ContentsController extends Controller
+class UnitsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +17,7 @@ class ContentsController extends Controller
      */
     public function index()
     {
-        //
+        
     }
 
     /**
@@ -38,16 +38,18 @@ class ContentsController extends Controller
      */
     public function store(Request $request)
     {
-        $content = new Content();
-        $validator = Validator::make($request->all(), $content->rules);
+        
+        $unit = new TextbookUnit();
+        $validator = Validator::make($request->all(), $unit->rules);
         if ($validator->fails())
         {
             return $this->message('error', 'Please fill all required fields.');
         }
-        Content::create($request->all());
 
-        return $this->message('success', 'Added new content.'); 
-        
+        $request->elements = '{ id: 1 }';
+
+        TextbookUnit::create($request->all());
+        return $this->message('success', 'Added new unit');
     }
 
     /**
@@ -58,9 +60,9 @@ class ContentsController extends Controller
      */
     public function show($id)
     {
-        $content = Content::find($id)->with('tips')->get();
-
-        return response()->json($content);
+        $unit = TextbookUnit::where('textbook_id', $id)->first();
+        // $unit->elements = json_encode($unit->elements);
+        return response()->json($unit);
     }
 
     /**
@@ -83,21 +85,16 @@ class ContentsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $content = Content::find($id);
-        $validator = Validator::make($request->all(), $content->rules);
-        if ($validator->fails())
+        $unit = TextbookUnit::find($id);
+        $unit->elements = $request->elements;
+        if ($unit->save())
         {
-            return $this->message('error', 'Please fill all required fields.');
+            return $this->message('success', 'Updated elements.');
+        }
+        else {
+            return $this->message('error', 'Failed to update.');
         }
         
-        $content->start_time = $request->start_time;
-        $content->end_time = $request->end_time;
-        $content->sentence = $request->sentence;
-        $content->translation = $request->translation;
-        $content->save();
-        
-        return $this->message('success', 'Content has been updated.');
-
     }
 
     /**
@@ -108,9 +105,7 @@ class ContentsController extends Controller
      */
     public function destroy($id)
     {
-        Content::destroy($id);
-
-        return $this->message('success', 'Content has been deleted.');
+        //
     }
 
     private function message($type, $data)
